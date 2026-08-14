@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import LotusDecor from '../components/LotusDecor'
 

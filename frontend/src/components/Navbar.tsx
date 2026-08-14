@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, useLocation } from 'react-router'
+import { Link, useLocation } from 'react-router-dom'
 
 const NAV_LINKS = [
   { label: 'Home',             to: '/' },
@@ -73,6 +73,18 @@ export default function Navbar() {
 
           <div className="flex items-center gap-3">
             <Link
+              to="/login"
+              className={`hidden lg:inline-flex items-center gap-1 px-3 py-1.5 rounded-full border text-[11px] font-medium transition-colors duration-200 ${solid ? 'border-sky-100 text-[#1a1f2e]/55 hover:border-sky-300 hover:text-[#1a1f2e]/80' : 'border-white/20 text-white/70 hover:text-white'}`}
+            >
+              Login
+            </Link>
+            <Link
+              to="/register"
+              className="hidden lg:inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-500 hover:bg-amber-400 text-white text-[11px] font-semibold transition-all duration-200 shadow-md hover:shadow-amber-200/70 hover:shadow-lg hover:-translate-y-0.5"
+            >
+              Sign Up
+            </Link>
+            <Link
               to="/admin"
               className={`hidden lg:inline-flex items-center gap-1 px-3 py-1.5 rounded-full border text-[11px] font-medium transition-colors duration-200 ${solid ? 'border-sky-100 text-[#1a1f2e]/40 hover:border-sky-300 hover:text-[#1a1f2e]/70' : 'border-white/20 text-white/50 hover:text-white/80'}`}
             >
@@ -104,6 +116,12 @@ export default function Navbar() {
                 {label}
               </Link>
             ))}
+            <Link to="/login" onClick={() => setMobileOpen(false)} className="block mt-3 px-5 py-3 rounded-full border border-sky-100 text-[#1a1f2e]/70 text-sm font-medium text-center hover:border-sky-300 transition-colors">
+              Login
+            </Link>
+            <Link to="/register" onClick={() => setMobileOpen(false)} className="block mt-2 px-5 py-3 rounded-full bg-amber-500 text-white text-sm font-semibold text-center">
+              Sign Up
+            </Link>
             <Link to="/find-center" className="block mt-4 px-5 py-3 rounded-full bg-amber-500 text-white text-sm font-semibold text-center">
               📍 Find Center
             </Link>
