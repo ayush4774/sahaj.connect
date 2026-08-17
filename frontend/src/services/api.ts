@@ -3,11 +3,11 @@ import axios from "axios";
 const api = axios.create({
   baseURL:
     import.meta.env.VITE_API_URL?.replace(/\/$/, "") ||
-    "http://localhost:5000/api",
+    "http://localhost:5001/api",
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 10000,
+  timeout: 60000,
 });
 
 api.interceptors.request.use((config) => {

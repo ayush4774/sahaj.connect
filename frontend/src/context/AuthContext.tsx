@@ -9,24 +9,15 @@ import {
 import api from "../services/api";
 
 export type AuthUser = {
-  id?: string | number;
-  name?: string;
-  username?: string;
-  email?: string;
-  role?: string;
-  [key: string]: unknown;
+  id: string;
+  email: string;
+  role: "admin";
 };
 
 type AuthContextValue = {
   user: AuthUser | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<AuthUser>;
-  register: (
-    name: string,
-    username: string,
-    email: string,
-    password: string
-  ) => Promise<AuthUser>;
   logout: () => void;
 };
 
@@ -37,7 +28,11 @@ function saveSession(token: string, user: AuthUser) {
   localStorage.setItem("user", JSON.stringify(user));
 }
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -55,7 +50,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (cachedUser) {
         try {
-          if (mounted) setUser(JSON.parse(cachedUser));
+          const parsedUser = JSON.parse(cachedUser);
+
+          if (mounted && parsedUser?.role === "admin") {
+            setUser(parsedUser);
+          }
         } catch {
           localStorage.removeItem("user");
         }
@@ -63,19 +62,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       try {
         const response = await api.get("/auth/me");
-        const nextUser = response.data?.user ?? response.data;
 
-        if (mounted && nextUser) {
+        const nextUser = response.data?.user;
+
+        if (
+          mounted &&
+          nextUser &&
+          nextUser.role === "admin"
+        ) {
           setUser(nextUser);
-          localStorage.setItem("user", JSON.stringify(nextUser));
+          localStorage.setItem(
+            "user",
+            JSON.stringify(nextUser)
+          );
+        } else {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+
+          if (mounted) {
+            setUser(null);
+          }
         }
       } catch {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
 
-        if (mounted) setUser(null);
+        if (mounted) {
+          setUser(null);
+        }
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     }
 
@@ -86,54 +104,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (
+    email: string,
+    password: string
+  ): Promise<AuthUser> => {
     const response = await api.post("/auth/login", {
       email,
       password,
     });
 
     const token = response.data?.token;
+    const nextUser = response.data?.user;
 
-    if (!token) {
-      throw new Error("The server did not return an authentication token.");
+    if (!token || !nextUser) {
+      throw new Error(
+        "The server did not return valid admin credentials."
+      );
     }
 
-    const nextUser: AuthUser =
-      response.data?.user ?? {
-        email,
-      };
-
-    saveSession(token, nextUser);
-    setUser(nextUser);
-
-    return nextUser;
-  };
-
-  const register = async (
-    name: string,
-    username: string,
-    email: string,
-    password: string
-  ) => {
-    const response = await api.post("/auth/register", {
-      name,
-      username,
-      email,
-      password,
-    });
-
-    const token = response.data?.token;
-
-    if (!token) {
-      throw new Error("The server did not return an authentication token.");
+    if (nextUser.role !== "admin") {
+      throw new Error("Unauthorized. Admin access required.");
     }
-
-    const nextUser: AuthUser =
-      response.data?.user ?? {
-        name,
-        username,
-        email,
-      };
 
     saveSession(token, nextUser);
     setUser(nextUser);
@@ -152,7 +143,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       loading,
       login,
-      register,
       logout,
     }),
     [user, loading]
@@ -169,7 +159,9 @@ export function useAuth() {
   const context = useContext(AuthContext);
 
   if (!context) {
-    throw new Error("useAuth must be used inside AuthProvider.");
+    throw new Error(
+      "useAuth must be used inside AuthProvider."
+    );
   }
 
   return context;
