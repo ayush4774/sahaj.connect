@@ -12,9 +12,7 @@ export const login = async (req, res) => {
     }
 
     // Admin login
-    if (
-      email === process.env.ADMIN_EMAIL?.trim().toLowerCase()
-    ) {
+    if (email === process.env.ADMIN_EMAIL?.trim().toLowerCase()) {
       const passwordMatches = await bcrypt.compare(
         password,
         process.env.ADMIN_PASSWORD_HASH
