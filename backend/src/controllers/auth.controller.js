@@ -1,3 +1,17 @@
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
+
+const generateToken = (id) => {
+  return jwt.sign(
+    { id },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "7d",
+    }
+  );
+};
+
 export const login = async (req, res) => {
   try {
     let { email, password } = req.body;
@@ -11,11 +25,23 @@ export const login = async (req, res) => {
       });
     }
 
+    const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+    const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
+
     // Admin login
-    if (email === process.env.ADMIN_EMAIL?.trim().toLowerCase()) {
+    if (email === adminEmail) {
+      if (!adminPasswordHash) {
+        console.error("ADMIN_PASSWORD_HASH is missing");
+
+        return res.status(500).json({
+          success: false,
+          message: "Admin configuration error",
+        });
+      }
+
       const passwordMatches = await bcrypt.compare(
         password,
-        process.env.ADMIN_PASSWORD_HASH
+        adminPasswordHash
       );
 
       if (!passwordMatches) {
@@ -27,7 +53,7 @@ export const login = async (req, res) => {
 
       const token = generateToken("admin");
 
-      return res.json({
+      return res.status(200).json({
         success: true,
         token,
         user: {
@@ -41,7 +67,7 @@ export const login = async (req, res) => {
     // Normal user login
     const user = await User.findOne({ email });
 
-    if (!user || !user.password) {
+    if (!user) {
       return res.status(401).json({
         success: false,
         message: "Invalid email or password",
@@ -62,13 +88,19 @@ export const login = async (req, res) => {
 
     const token = generateToken(user._id.toString());
 
-    return res.json({
+    return res.status(200).json({
       success: true,
       token,
-      user: formatUser(user),
+      user: {
+        id: user._id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        role: user.role || "user",
+      },
     });
   } catch (error) {
-    console.error("Login error:", error);
+    console.error("LOGIN ERROR:", error);
 
     return res.status(500).json({
       success: false,
@@ -78,8 +110,29 @@ export const login = async (req, res) => {
 };
 
 export const me = async (req, res) => {
-  return res.json({
-    success: true,
-    user: req.user,
-  });
+  try {
+    // Special admin user
+    if (req.user?.id === "admin") {
+      return res.json({
+        success: true,
+        user: {
+          id: "admin",
+          role: "admin",
+          email: process.env.ADMIN_EMAIL,
+        },
+      });
+    }
+
+    return res.json({
+      success: true,
+      user: req.user,
+    });
+  } catch (error) {
+    console.error("ME ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch user",
+    });
+  }
 };
