@@ -749,8 +749,8 @@ export default function VolunteerSystem() {
                   Have a question before signing up? Our volunteer coordinators are happy to help you find the right role.
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  <a href="tel:+919876543210" className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#0d2b45] hover:bg-[#1a3f5c] text-white text-[13px] font-semibold transition-all duration-200 hover:-translate-y-0.5">📞 Call</a>
-                  <a href="https://wa.me/919876543210" className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white text-[13px] font-semibold transition-all duration-200 hover:-translate-y-0.5">💬 WhatsApp</a>
+                  <a href="tel:+---------" className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#0d2b45] hover:bg-[#1a3f5c] text-white text-[13px] font-semibold transition-all duration-200 hover:-translate-y-0.5">📞 Call</a>
+                  <a href="https://wa.me/---------" className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white text-[13px] font-semibold transition-all duration-200 hover:-translate-y-0.5">💬 WhatsApp</a>
                   <a href="mailto:volunteer@sahaja.in" className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#0d2b45]/20 hover:border-[#0d2b45]/40 text-[#0d2b45] text-[13px] font-semibold transition-all duration-200 hover:-translate-y-0.5">✉️ Email</a>
                 </div>
               </div>

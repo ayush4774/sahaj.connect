@@ -1,8 +1,14 @@
 import axios from "axios";
 
+const viteMeta = import.meta as ImportMeta & {
+  env?: {
+    VITE_API_URL?: string;
+  };
+};
+
 const api = axios.create({
   baseURL:
-    import.meta.env.VITE_API_URL?.replace(/\/$/, "") ||
+    viteMeta.env?.VITE_API_URL?.replace(/\/$/, "") ||
     "http://localhost:5001/api",
   headers: {
     "Content-Type": "application/json",
